@@ -1,20 +1,26 @@
-import { IModal, ModalViews } from "../../types/view/Modal";
+import { IEventEmitter } from "../../types";
+import { View } from "../base/View";
 
+type IModalData = {
+  content: HTMLElement;
+}
 
-class Modal implements IModal {
-  _closeButton: HTMLElement;
-  _container: HTMLElement;
+class Modal extends View<IModalData> {
+  closeButton: HTMLElement;
+  modalContent: HTMLElement;
 
-  constructor(_container: HTMLElement) {
+  constructor(container: HTMLElement, events: IEventEmitter) {
+    super(container);
   };
+
+  set content(data: HTMLElement) {
+  }
   
   open(): void {};
 
   close(): void {};
 
-  getView(id: ModalViews): HTMLElement {
+  render(data: IModalData): HTMLElement {
     return;
-  };
-
-  setView(view: HTMLElement): void {};
+  }
 }

@@ -1,22 +1,18 @@
-import { IProduct } from "../../types";
-import { IProductView } from "../../types/view/IProductView";
+import { IEventEmitter, IProduct } from "../../types";
+import { View } from "../base/View";
 
-class ProductView implements IProductView {
-  _container: HTMLElement;
+class ProductView extends View<IProduct> {
+  container: HTMLElement;
   title: HTMLElement;
   price: HTMLElement;
   category: HTMLElement;
   image: HTMLElement;
   description: HTMLElement;
 
-  _addButton: HTMLButtonElement | null;
-  _deleteButton: HTMLButtonElement | null;
+  addButton: HTMLButtonElement | null;
+  deleteButton: HTMLButtonElement | null;
 
-  constructor(container: HTMLElement) {
-    this._container = container;
-  }
-
-  render(data: Partial<IProduct>): HTMLElement {
-    return;
+  constructor(container: HTMLElement, events: IEventEmitter) {
+    super(container);
   }
 }

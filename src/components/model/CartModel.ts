@@ -1,14 +1,10 @@
 import { IProduct, IEventEmitter } from "../../types";
-import { IOrderState } from "../../types/api/CartApi";
-import { PaymentMethods } from "../../types/view/Form";
-import { ICartModel, OrderStateType } from "../../types/model/CartModel";
+import { ICartModel } from "../../types/model/CartModel";
 
 class CartModel implements ICartModel {
-  _products: Map<string, number>;
-  _events: IEventEmitter;
+  products: Map<string, number>;
 
-  constructor(_events: IEventEmitter) {
-    this._events = _events;
+  constructor(events: IEventEmitter) {
   }
   
   addProduct(id: IProduct["id"]): IProduct {
@@ -28,18 +24,5 @@ class CartModel implements ICartModel {
   }
 
   clearCart(): void {
-  }
-}
-
-class OrderState implements IOrderState {
-  set email(email: string) {}
-  set phone(phone: string) {}
-  set address(address: string) {}
-  set payment(payment: PaymentMethods) {}
-  set total(total: number) {}
-  set items(items: string[]){}
-
-  getState(): OrderStateType{
-    return;
   }
 }

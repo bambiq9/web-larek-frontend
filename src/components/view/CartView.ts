@@ -1,18 +1,23 @@
-import { View } from "./View";
+import { View } from "../base/View";
 
-class CartView extends View<Map<string, number>> {
-  _container: HTMLElement;
-  _totalPriceElement: HTMLElement;
-  _submitButton: HTMLButtonElement;
+type ICartView = {
+  products: HTMLElement[];
+  totalPrice: number;
+}
 
-  constructor(cartTemplate: HTMLTemplateElement) {
-    super(cartTemplate);
+class CartView extends View<ICartView> {
+  container: HTMLElement;
+  productList: HTMLElement;
+  totalPriceElement: HTMLElement;
+  submitButton: HTMLButtonElement;
 
-    this._container = cartTemplate;
+  constructor(container: HTMLElement) {
+    super(container);
+  }
+
+  set products(products: HTMLElement[]) {
   }
 
   set totalPrice(price: number) {
   }
-
-  render(data: Map<string, number>) {}
 }

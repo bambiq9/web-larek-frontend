@@ -1,13 +1,11 @@
-import { View } from "./View";
+import { View } from "../base/View";
 
 class ProductListView extends View<HTMLElement[]> {
-  _productListContainer: HTMLElement;
+  productList: HTMLElement;
 
   constructor(container: HTMLElement) {
     super(container);
-
-    this._productListContainer = container;
   }
 
-  render(data: HTMLElement[]) {};
+  set products(products: HTMLElement[]) {}
 }

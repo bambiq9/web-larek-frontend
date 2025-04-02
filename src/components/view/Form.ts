@@ -1,40 +1,29 @@
-import { IForm, PaymentMethods } from "../../types/view/Form";
+import { IEventEmitter } from "../../types";
+import { View } from "../base/View";
 
-class Form implements IForm {
-  _form: HTMLFormElement;
-  _inputs: NodeList | HTMLInputElement;
-  _paymentMethod: PaymentMethods;
-  _submitButton: HTMLButtonElement;
+interface IFormState {
+  valid: boolean;
+  errors: string[];
+}
 
-  constructor(formTemplate: HTMLTemplateElement) {
+export abstract class Form<T> extends View<IFormState> {
+  errorElement: HTMLElement;
+  submitButton: HTMLButtonElement;
+
+  constructor(container: HTMLFormElement, events: IEventEmitter) {
+    super(container);
   }
 
-  clear() {};
-
-  setInputs(): void {
+  set valid(value: boolean) {
   }
 
-  validateInput(input: HTMLInputElement): boolean {
+  set errors(data: string) {  
+  }
+
+  inputChangeHandler(field: keyof T, value: string) {
+  }
+
+  render(data: Partial<T> & IFormState): HTMLElement {
     return;
-  }
-
-  validateForm(): boolean {
-    return;
-  }
-
-  setPaymentMethod(method: PaymentMethods): void {
-  };
-  
-
-  showError(error: string): void {
-  }
-
-  hideError(): void {
-  }
-
-  setDisabled(element: HTMLElement, state: boolean) {
-  }
-
-  submitForm(): void {
   }
 }

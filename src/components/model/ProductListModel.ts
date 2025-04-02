@@ -2,11 +2,9 @@ import { IProduct, IEventEmitter } from "../../types";
 import { IProductListModel } from "../../types/model/ProductListModel";
 
 class ProductListModel implements IProductListModel{
-  _products: IProduct[];
-  _events: IEventEmitter;
+  products: IProduct[];
 
   constructor(events: IEventEmitter) {
-    this._events = events;
   }
 
   getProducts(): IProduct[] {

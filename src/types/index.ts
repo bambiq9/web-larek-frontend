@@ -1,3 +1,5 @@
+import { PaymentMethods } from "./view/Form";
+
 type Categories = 'софт-скил' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скил';
 
 export type IProduct = {
@@ -25,5 +27,15 @@ export enum Events {
   ProductListGetSuccess = 'productList:get',
   ProductListGetError = 'productList:error',
   ProductListSet = 'productList:set',
-  ProductClick = 'product:click'
+  ProductClick = 'product:click',
+  ProductAdd = 'product:add',
+  ProductDelete = 'product:delete',
+}
+
+export type OrderApiData = { 
+  email: string;
+  phone: string;
+  address: string;
+  payment: PaymentMethods;
+  items: string[];
 }
