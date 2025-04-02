@@ -51,7 +51,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `get(uri: string)` — получает данные с сервера.
 - `post(uri: string, data: object, method: ApiPostMethods = 'POST')` — отправляет данные на сервер.
 
-### 2. `ProductListApi`
+### 3. `ProductListApi`
 Наследует `Api`.  
 Отвечает за получение данных о товарах с сервера.
 
@@ -66,7 +66,21 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `getProduct(id: IProduct["id"]): Promise<IProduct>` — получает данные об одном товаре.
 
 
-### 3. `CartModel`
+4. `OrderApi`
+Наследует `Api`.  
+Отвечает за отправку запроса оформления заказа.
+
+#### Конструктор:
+`constructor(baseUrl: string)`
+
+#### Поля:
+- `baseUrl: string` — адрес API.
+
+#### Методы:
+- `order(data: OrderApiData): Promise<PostError | PostSuccess>` — принимает объект с данными заказа и отправляет запрос на сервер.
+
+
+### 5. `CartModel`
 Модель корзины. Отвечает за хранение, управление списком добавленных товаров и обработку их данных.
 
 #### Конструктор:
@@ -83,7 +97,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `clearCart(): void` — очищает корзину.
 
 
-### 4. `FormModel<T>`
+### 6.1 `FormModel<T>`
 Основа моделей форм.  
 Принимает дженерик, определяющий структуру данных формы.
 
@@ -96,7 +110,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `abstract getData(): unknown` — абстрактный метод. Возвращает данные формы для последующего использования.
 
 
-### 4.1 `FormOrderModel`
+### 6.2 `FormOrderModel`
 Наследует `FormModel<IFormOrder>`.
 Отвечает за состояние формы order и ее валидацию.
 
@@ -117,7 +131,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `getData(): FormOrderData` — вощвращает объект с данными формы.
 
 
-### 4.2 `FormContactsModel`
+### 6.3 `FormContactsModel`
 Наследует `FormModel<IFormContacts>`.
 Отвечает за состояние формы contacts и ее валидацию.
 
@@ -137,20 +151,6 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `getData(): FormContactsData` — вощвращает объект с данными формы.
 
 
-5. `OrderApi`
-Наследует `Api`.  
-Отвечает за отправку запроса оформления заказа.
-
-#### Конструктор:
-`constructor(baseUrl: string)`
-
-#### Поля:
-- `baseUrl: string` — адрес API.
-
-#### Методы:
-- `order(data: OrderApiData): Promise<PostError | PostSuccess>` — принимает объект с данными заказа и отправляет запрос на сервер.
-
-
 ## Классы View
 ### 1. `View<T>`
 Абстрактный класс.  
@@ -166,6 +166,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `setDisabled(element: HTMLElement, state: boolean)` — уставаливает аттрибут disabled.
 - `render(data?: Partial<T>)` — отвечает за отображение элемента. Обновляет поля текущего экземпляра класса. Возвращает `container(HTMLElement)`.
 
+
 ### 2. `ProductView` 
 Наследует `View`.  
 
@@ -177,6 +178,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `addButton` — событие `product:add`.  
 - `deleteButton` — событие `product:delete`.  
 При нажатии на карточку, вызывается событие `product:click`.
+
 
 ### 3. `ProductListView`
 Наследует `View`.
@@ -202,6 +204,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 `(container: HTMLElement)`  
 Добавляется обработчик события `submit` на нажатие `submitButton`, который вызывает событие `order:submit`.
 
+
 ### 5.1 `Form<T>`
 Наследует `View`.  
 Основа для классов форм. Отвечает за отображение формы.  
@@ -214,6 +217,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 #### Методы:
 - `inputChangeHandler(field: keyof T, value: string)` — обработчик события `input`. Вызывает событие типа `имя_формы.поле_ввода:change`
 
+
 ### 5.2 `FormOrder`
 Наследует `Form`. 
 
@@ -222,6 +226,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 
 #### Сеттеры и геттеры:
 - `set deliveryAddressValue(value: string)` — устанавливает значение в поле ввода `deliveryAddress`.
+
 
 ### 5.3 `FormContacts`
 Наследует `Form`.  
@@ -232,6 +237,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 #### Сеттеры и геттеры:
 - `set emailValue(value: string)` — устанавливает значение в поле ввода `email`.
 - `set phoneValue(value: string)` — устанавливает значение в поле ввода `phone`.
+
 
 ### 6. `Modal`
 Наследует `View`.  
@@ -249,6 +255,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `open()` — отображает модальное окно. Вызывает событие `modal:open`
 - `close()` — скрывает модальное окно. Вызывает событие `modal:close`
 - `render(data: IModalData): HTMLElement` — расширяет родительский метод `render`, добавляя функционал открытия модального окна.
+
 
 ## Presenter
 Презентер связывает между собой модель и представление, используя событийно-ориентированный подход.  
