@@ -17,9 +17,7 @@ export class Modal extends View<IModalData> {
 		this.modalContent = ensureElement('.modal__content');
 
 		[this.closeButton, this.container].forEach((element) => {
-			element.addEventListener('click', (e) => {
-				this.close();
-			});
+			element.addEventListener('click', () => this.close());
 		});
 		this.modalContent.addEventListener('click', (e) => e.stopPropagation());
 	}

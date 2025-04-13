@@ -1,4 +1,4 @@
-import { PaymentMethods } from './FormModel';
+import { PaymentMethods } from "../view/FormOrder";
 
 export type OrderModelTypes = {
 	email: string;

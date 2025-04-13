@@ -1,7 +1,7 @@
 import { AppApi } from './components/api/AppApi';
 import { EventEmitter } from './components/base/events';
 import { CartModel } from './components/model/CartModel';
-import { OrderModel, OrderModelTypes } from './components/model/OrderModel';
+import { OrderModel } from './components/model/OrderModel';
 import { ProductListModel } from './components/model/ProductListModel';
 import { CartView } from './components/view/CartView';
 import { FormContacts } from './components/view/FormContacts';
@@ -15,8 +15,9 @@ import {
 } from './components/view/ProductView';
 import { SuccessView } from './components/view/SuccessView';
 import './scss/styles.scss';
-import { Events, IProduct, EventDataId, OrderData } from './types';
-import { PaymentMethods } from './types/model/FormModel';
+import { Events, IProduct, OrderData } from './types';
+import { OrderModelTypes } from './types/model/OrderModel';
+import { PaymentMethods } from './types/view/FormOrder';
 import { API_URL, CDN_URL } from './utils/constants';
 import { cloneTemplate, ensureElement } from './utils/utils';
 
@@ -176,14 +177,14 @@ events.on(Events.ContactsValid, () => {
 // Form invalid
 events.on(Events.OrderError, (data) => {
 	formOrder.valid = false;
-	let errors: string = '';
+	let errors = '';
 	Object.values(data).forEach((error) => (errors += error));
 	formOrder.errors = errors;
 });
 
 events.on(Events.ContactsError, (data) => {
 	formContacts.valid = false;
-	let errors: string = '';
+	let errors = '';
 	Object.values(data).forEach((error) => (errors += ` ${error}`));
 	formContacts.errors = errors;
 });
