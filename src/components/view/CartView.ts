@@ -1,23 +1,54 @@
-import { View } from "../base/View";
+import { Events, IEventEmitter } from '../../types';
+import { ICartView } from '../../types/view/CartView';
+import { ensureElement } from '../../utils/utils';
+import { View } from '../base/View';
 
-type ICartView = {
-  products: HTMLElement[];
-  totalPrice: number;
-}
+export class CartView extends View<ICartView> {
+	protected cartButton: HTMLButtonElement;
+	protected cartCounter: HTMLElement;
+	protected productList: HTMLElement;
+	protected totalPriceElement: HTMLElement;
+	protected submitButton: HTMLButtonElement;
 
-class CartView extends View<ICartView> {
-  container: HTMLElement;
-  productList: HTMLElement;
-  totalPriceElement: HTMLElement;
-  submitButton: HTMLButtonElement;
+	constructor(
+		protected readonly container: HTMLElement,
+		protected events: IEventEmitter
+	) {
+		super(container);
 
-  constructor(container: HTMLElement) {
-    super(container);
-  }
+		this.cartButton = ensureElement('.header__basket') as HTMLButtonElement;
+		this.cartCounter = ensureElement('.header__basket-counter');
+		this.productList = ensureElement('.basket__list', this.container);
+		this.totalPriceElement = ensureElement('.basket__price', this.container);
+		this.submitButton = ensureElement(
+			'.basket__button',
+			this.container
+		) as HTMLButtonElement;
 
-  set products(products: HTMLElement[]) {
-  }
+		this.valid = false;
 
-  set totalPrice(price: number) {
-  }
+		this.cartButton.addEventListener('click', () => {
+			events.emit(Events.CartOpen);
+		});
+
+		this.submitButton.addEventListener('click', () => {
+			events.emit(Events.FormOrder);
+		});
+	}
+
+	set valid(value: boolean) {
+		this.setDisabled(this.submitButton, !value);
+	}
+
+	set products(products: HTMLElement[]) {
+		this.productList.replaceChildren(...products);
+	}
+
+	set totalPrice(price: number) {
+		this.setText(this.totalPriceElement, price);
+	}
+
+	set cartCount(count: number) {
+		this.setText(this.cartCounter, count);
+	}
 }

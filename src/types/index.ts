@@ -1,41 +1,53 @@
-import { PaymentMethods } from "./view/Form";
+import { PaymentMethods } from './model/FormModel';
 
-type Categories = 'софт-скил' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скил';
+type Categories =
+	| 'софт-скил'
+	| 'другое'
+	| 'дополнительное'
+	| 'кнопка'
+	| 'хард-скил';
 
 export type IProduct = {
-  title: string;
-  image: string;
-  category: Categories;
-  description: string;
-  price: number;
-  id: string;
-}
+	title: string;
+	image: string;
+	category: Categories;
+	description: string;
+	price: number;
+	id: string;
+};
 
 export interface IEventEmitter {
-  emit<T extends object>(event: string, data?: T): void;
+	emit<T extends object>(event: string, data?: T): void;
+}
+
+export type EventDataId = {
+	id: string;
 };
 
 export enum Events {
-  OrderCreate = 'order:create',
-  OrderSucess = 'order:success',
-  OrderError = 'order:error',
-  CartAdd = 'cart:add',
-  CartRemove = 'cart:remove',
-  CartPaymentMethod = 'cart:paymentMethod',
-  ModalOpen = 'modal:open',
-  ModalClose = 'modal:close',
-  ProductListGetSuccess = 'productList:get',
-  ProductListGetError = 'productList:error',
-  ProductListSet = 'productList:set',
-  ProductClick = 'product:click',
-  ProductAdd = 'product:add',
-  ProductDelete = 'product:delete',
+	OrderSubmit = 'order:submit',
+	OrderError = 'order:error',
+	OrderPaymentMethod = 'order:paymentMethod',
+	OrderValid = 'order:valid',
+	ContactsValid = 'contacts:valid',
+	ContactsError = 'contacts:error',
+	CartOpen = 'cart:open',
+	CartChanged = 'cart:changed',
+	FormOrder = 'form:order',
+	FormContacts = 'form:contacts',
+	ModalOpen = 'modal:open',
+	ModalClose = 'modal:close',
+	ProductListSet = 'productList:set',
+	ProductClick = 'product:click',
+	ProductAdd = 'product:add',
+	ProductDelete = 'product:delete',
 }
 
-export type OrderApiData = { 
-  email: string;
-  phone: string;
-  address: string;
-  payment: PaymentMethods;
-  items: string[];
-}
+export type OrderData = {
+	email: string;
+	phone: string;
+	address: string;
+	payment: PaymentMethods;
+	items: string[];
+	total: number;
+};

@@ -1,28 +1,42 @@
-import { IProduct, IEventEmitter } from "../../types";
-import { ICartModel } from "../../types/model/CartModel";
+import { IProduct, IEventEmitter, Events } from '../../types';
 
-class CartModel implements ICartModel {
-  products: Map<string, number>;
+export class CartModel {
+	protected products: Map<IProduct['id'], IProduct>;
+	protected totalPrice: number;
 
-  constructor(events: IEventEmitter) {
-  }
-  
-  addProduct(id: IProduct["id"]): IProduct {
-    return;
-  }
+	constructor(protected events: IEventEmitter) {
+		this.products = new Map();
+		this.totalPrice = 0;
+	}
 
-  removeProduct(id: IProduct["id"]): IProduct {
-    return;
-  }
+	addProduct(product: IProduct): void {
+		if (!this.products.has(product.id)) {
+			this.products.set(product.id, product);
+			this.totalPrice += product.price;
+			this.events.emit(Events.CartChanged);
+		}
+	}
 
-  getProducts(): Map<string, number> {
-    return;
-  }
+	removeProduct(id: IProduct['id']): void {
+		this.totalPrice -= this.products.get(id).price;
+		this.products.delete(id);
+		this.events.emit(Events.CartChanged);
+	}
 
-  getTotalPrice(): number {
-    return;
-  }
+	getProducts(): Map<IProduct['id'], IProduct> {
+		return this.products;
+	}
 
-  clearCart(): void {
-  }
+	getAmountOfProducts(): number {
+		return this.products.size;
+	}
+
+	getTotalPrice(): number {
+		return this.totalPrice;
+	}
+
+	clearCart(): void {
+		this.products.clear();
+		this.events.emit(Events.CartChanged);
+	}
 }

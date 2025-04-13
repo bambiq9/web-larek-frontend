@@ -1,21 +1,20 @@
-import { IProduct, IEventEmitter } from "../../types";
-import { IProductListModel } from "../../types/model/ProductListModel";
+import { IProduct, IEventEmitter } from '../../types';
+import { Events } from '../../types';
 
-class ProductListModel implements IProductListModel{
-  products: IProduct[];
+export class ProductListModel {
+	protected products: IProduct[];
 
-  constructor(events: IEventEmitter) {
-  }
+	constructor(protected events: IEventEmitter) {
+		this.events = events;
+	}
 
-  getProducts(): IProduct[] {
-    return;
-  }
+	getProducts(): IProduct[] {
+		return this.products;
+	}
 
-  getProduct(id: IProduct["id"]): IProduct {
-    return;
-  }
-
-  setProducts(products: IProduct[]): IProduct[] {
-    return;
-  }
+	setProducts(products: IProduct[]): IProduct[] {
+		this.products = products;
+		this.events.emit(Events.ProductListSet, this.products);
+		return this.products;
+	}
 }

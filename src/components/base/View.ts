@@ -1,20 +1,25 @@
 export abstract class View<T> {
-  container: HTMLElement;
+	constructor(protected readonly container: HTMLElement) {}
 
-  constructor(container: HTMLElement) {
-    this.container = container;
-  }
+	toggleClass(element: HTMLElement, className: string, force?: boolean) {
+		element.classList.toggle(className, force);
+	}
 
-  toggleClass(element: HTMLElement, className: string, force?: boolean) {
-  }
+	setText(element: HTMLElement, value: unknown) {
+		if (element) {
+			element.textContent = String(value);
+		}
+	}
 
-  setText(element: HTMLElement, value: unknown) {
-  }
+	setDisabled(element: HTMLElement, state: boolean) {
+		if (element) {
+			if (state) element.setAttribute('disabled', 'disabled');
+			else element.removeAttribute('disabled');
+		}
+	}
 
-  setDisabled(element: HTMLElement, state: boolean) {
-  }
-
-  render(data?: Partial<T>): HTMLElement {
-    return;
-  }
+	render(data?: Partial<T>): HTMLElement {
+		Object.assign(this as object, data ?? {});
+		return this.container;
+	}
 }

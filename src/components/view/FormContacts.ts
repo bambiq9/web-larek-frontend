@@ -1,15 +1,39 @@
-import { IEventEmitter, IFormContacts } from "../../types";
-import { Form } from "./Form";
+import { Events, IEventEmitter } from '../../types';
+import { IFormContacts } from '../../types/view/FormContacts';
+import { Form } from './Form';
 
-class FormContacts extends Form<IFormContacts> {
-  email: HTMLInputElement;
-  phone: HTMLInputElement;
+export class FormContacts extends Form<IFormContacts> {
+	email: HTMLInputElement;
+	phone: HTMLInputElement;
 
-  constructor(container: HTMLFormElement, events: IEventEmitter) {
-    super(container, events);
-  }
+	constructor(container: HTMLFormElement, events: IEventEmitter) {
+		super(container, events);
 
-  set emailValue(value: string) {};
+		this.email = this.container.querySelector(
+			'input[name="email"]'
+		) as HTMLInputElement;
+		this.phone = this.container.querySelector(
+			'input[name="phone"]'
+		) as HTMLInputElement;
 
-  set phoneValue(value: string) {};
+		this.container.addEventListener('submit', (e) => {
+			e.preventDefault();
+			events.emit(Events.OrderSubmit);
+		});
+	}
+
+	set emailValue(value: string) {
+		this.email.value = value;
+	}
+
+	set phoneValue(value: string) {
+		this.phone.value = value;
+	}
+
+	inputChangeHandler(field: keyof IFormContacts, value: string) {
+		this.events.emit(`contacts.${String(field)}:change`, {
+			field,
+			value,
+		});
+	}
 }

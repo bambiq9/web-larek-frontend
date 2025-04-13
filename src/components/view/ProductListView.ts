@@ -1,11 +1,11 @@
-import { View } from "../base/View";
+import { View } from '../base/View';
 
-class ProductListView extends View<HTMLElement[]> {
-  productList: HTMLElement;
+export class ProductListView extends View<HTMLElement[]> {
+	constructor(protected readonly container: HTMLElement) {
+		super(container);
+	}
 
-  constructor(container: HTMLElement) {
-    super(container);
-  }
-
-  set products(products: HTMLElement[]) {}
+	set products(products: HTMLElement[]) {
+		this.container.replaceChildren(...products);
+	}
 }

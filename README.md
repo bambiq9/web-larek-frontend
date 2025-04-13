@@ -32,7 +32,6 @@ https://github.com/bambiq9/web-larek-frontend.git
 
 #### Методы:
 - `getProducts(): IProduct[]` — возвращает список товаров.
-- `getProduct(id: IProduct["id"]): IProduct` — возвращает товар по его id.
 - `setProducts(products: IProduct[]): IProduct[]` — обновляет список товаров в свойстве `products`, а также вызывает событие `productList:set`.
 
 
@@ -51,9 +50,9 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `get(uri: string)` — получает данные с сервера.
 - `post(uri: string, data: object, method: ApiPostMethods = 'POST')` — отправляет данные на сервер.
 
-### 3. `ProductListApi`
+### 3. `AppApi`
 Наследует `Api`.  
-Отвечает за получение данных о товарах с сервера.
+Отвечает за получение данных о товарах с сервера, а также за запросы оформления заказа.
 
 #### Конструктор:
 `constructor(baseUrl: string)`
@@ -63,21 +62,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 
 #### Методы:
 - `getProducts(): Promise<IProduct[]>` — отправляет запрос на получение данных о товарах. Вызывает событие `productList:get` или `productList:error`.
-- `getProduct(id: IProduct["id"]): Promise<IProduct>` — получает данные об одном товаре.
-
-
-4. `OrderApi`
-Наследует `Api`.  
-Отвечает за отправку запроса оформления заказа.
-
-#### Конструктор:
-`constructor(baseUrl: string)`
-
-#### Поля:
-- `baseUrl: string` — адрес API.
-
-#### Методы:
-- `order(data: OrderApiData): Promise<PostError | PostSuccess>` — принимает объект с данными заказа и отправляет запрос на сервер.
+- `order(data: OrderData): Promise<PostError | PostSuccess>` — принимает объект с данными заказа и отправляет запрос на сервер.
 
 
 ### 5. `CartModel`
@@ -87,68 +72,42 @@ https://github.com/bambiq9/web-larek-frontend.git
 `constructor(events: IEventEmitter)`
 
 #### Поля:
-- `products: Map<string, number>` — Коллекция id товаров в корзине и их количество.
+- `products: Map<IProduct['id'], IProduct>` — Коллекция. Ключ: id товара, значение - объект товара.
+- `totalPrice: number` — общая цена всех товаров в корзине.
 
 #### Методы:
-- `addProduct(id: IProduct["id"]): IProduct` — добавляет товар в корзину. Вызывает событие `cart:add`.
-- `removeProduct(id: IProduct["id"]): IProduct` — удаляет товар из корзины. Вызывает событие `cart:remove`.
-- `getProducts(): Map<string, number>` — возвращает список товаров в корзине.
+- `addProduct(product: IProduct): void` — добавляет товар в корзину. Вызывает событие `cart:add`.
+- `removeProduct(id: IProduct["id"]): void` — удаляет товар из корзины. Вызывает событие `cart:remove`.
+- `getProducts(): Map<IProduct['id'], IProduct>` — возвращает список товаров в корзине.
+- `getAmountOfProducts(): number` — возвращает количество товаров в корзине.
 - `getTotalPrice(): number` — возвращает стоимость (сумму) всех товаров в корзине.
 - `clearCart(): void` — очищает корзину.
 
 
-### 6.1 `FormModel<T>`
-Основа моделей форм.  
-Принимает дженерик, определяющий структуру данных формы.
+### 6. `OrderModel`
+Отвечает за управление данными заказа.
 
 #### Конструктор:
-`constructor(events: IEventEmitter)`
-
-#### Методы:
-- `setField(field: keyof T, value: string)` — обновляет данные формы и вызывает метод `validate`.
-- `abstract validate(): boolean` — абстрактный метод валидации формы. Проверяет правильность заполенния формы и генерирует объект ошибок. Будет реализовываться в каждом наследующем классе по-разному.
-- `abstract getData(): unknown` — абстрактный метод. Возвращает данные формы для последующего использования.
-
-
-### 6.2 `FormOrderModel`
-Наследует `FormModel<IFormOrder>`.
-Отвечает за состояние формы order и ее валидацию.
-
-#### Конструктор:
-`constructor(events: IEventEmitter)`
+`(protected events: IEventEmitter)`
 
 #### Поля:
-- `paymentType: PaymentMethods` — тип оплаты заказа.
-- `deliveryAddress: string` — адрес доставки заказа.
+- `order` — содержит объект с данными заказа.
+  - `email` 
+  - `phone`
+  - `paymentType` — тип оплаты (card/cash).
+  - `address`
+- `formErrors` — список ошибок в полученных от пользователя данных.
 
 #### Сеттеры и геттеры:
-- `set payment(type: string)` — `paymentType`
-- `get payment(): string` — `paymentType`
-- `get address(): string` — `deliveryAddress`
+- `set payment(type: PaymentMethods)` — устаналивает тип оплаты.
+- `get payment`, `address`, `email`, `phone`
 
 #### Методы:
-- `validate(): boolean` — метод `validate` реализован с учетом типа введенных данных доставки. 
-- `getData(): FormOrderData` — вощвращает объект с данными формы.
-
-
-### 6.3 `FormContactsModel`
-Наследует `FormModel<IFormContacts>`.
-Отвечает за состояние формы contacts и ее валидацию.
-
-#### Конструктор:
-`constructor(events: IEventEmitter)`
-
-#### Поля:
-- `email: string` — значение поля формы email.
-- `phone: string` — значение поля формы phone.
-
-#### Сеттеры и геттеры:
-- `get emailAddress(): string` — `email`
-- `get phoneNumber(): string` — `phone`
-
-#### Методы:
-- `validate(): boolean` — метод `validate` реализован с учетом типа введенных контактных данных. 
-- `getData(): FormContactsData` — вощвращает объект с данными формы.
+- `setFieldOrder<K extends keyof OrderModelTypes>(field: K, value: OrderModelTypes[K])` — обновляет данные заказа (`paymentType`, `address`) в объекте `order` и вызывает метод `validate`.
+- `setFieldContacts<K extends keyof OrderModelTypes>(field: K, value: OrderModelTypes[K])` — обновляет контактные данные (`phone`, `email`) в объекте `order` и вызывает метод `validate`.
+- `validateOrder(): boolean` — проверяет данные заказа на корректность.
+- `validateContacts(): boolean` — проверяет контактные данные на корректность.
+- `clear(): void` — возвращает объект `order` к значению по-умолчанию.
 
 
 ## Классы View
@@ -167,65 +126,147 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `render(data?: Partial<T>)` — отвечает за отображение элемента. Обновляет поля текущего экземпляра класса. Возвращает `container(HTMLElement)`.
 
 
-### 2. `ProductView` 
-Наследует `View`.  
+### 2.1 `ProductView` 
+Наследует `View`.
+Представление карточки товара в списке товаров.
 
-Содержит следующие элементы разметки карточки товара: `container`, `title`, `price`, `category`, `image`, `description`, `addButton`, `deleteButton`.
+Содержит следующие элементы разметки карточки товара: `container`, `titleElement`, `priceElement`, `categoryElement`, `imageElement`.
 
 #### Конструктор:
-`(container: HTMLElement, events: IEventEmitter)`  
-Добавляются обрабочтки нажатия на кнопки `addButton` и `deleteButton`:  
-- `addButton` — событие `product:add`.  
-- `deleteButton` — событие `product:delete`.  
-При нажатии на карточку, вызывается событие `product:click`.
+```
+(
+  protected readonly container: HTMLElement,
+  protected events: IEventEmitter,
+  protected handler: ClickHandler
+)
+```
+- `handler` — обработчик события `click` на `container`.
+
+Добавляется слушатель события `click` на `container`.
+
+#### Сеттеры и геттеры:
+- `set title(text: string)` — текст элемента `titleElement`.
+- `set price(value: number)` — текст `priceElement`.
+- `set category(value: string)` — текст `categoryElement`. 
+- `set image(src: string)` — значение атрибута `src` элемента `imageElement`.
+
+
+### 2.2 `ProductViewPreview`
+Наследует `ProductView`.
+
+Представление карточки товара в модальном окне.
+
+Содержит следующие элементы разметки карточки товара: унаследованные элементы от родителя, `description`, `button`.
+
+#### Конструктор:
+```
+(
+  protected readonly container: HTMLElement,
+  protected events: IEventEmitter,
+  protected handler: ClickHandler
+)
+```
+- `handler` — обработчик события `click` на `button`.
+
+#### Сеттеры и геттеры:
+- `set buttonText(text: string)` — установка текста кнопки `button`.
+- `set buttonDisable(value: boolean)` — установка значения аттрибута `disavbled` у кнопки `button`.
+
+
+### 2.3 `ProductViewCart`
+Наследует `ProductView`.
+
+Представление карточки товара в корзине.
+
+Содержит следующие элементы разметки карточки товара: унаследованные элементы от родителя, `button`, `indexElement`.
+
+#### Конструктор:
+```
+(
+  protected readonly container: HTMLElement,
+  protected events: IEventEmitter,
+  protected handler: ClickHandler
+)
+```
+- `handler` — обработчик события `click` на `button`.
+
+#### Сеттеры и геттеры:
+- `set index(index: number)` — установка индекса карточки для отображения в списке товаров корзины.
 
 
 ### 3. `ProductListView`
 Наследует `View`.
 
 Представление списка товаров магазина.  
-Содержит элемент списка товаров `productList`.  
 Обновление списка происходит через сеттер `set products(products: HTMLElement[])`.
 
 #### Конструктор:
 `(container: HTMLElement)`
+
 
 ### 4. `CartView`
 Наследует `View`. 
 
 Отображение корзины.
 
-Содержит следующие элементы разметки корзины: `container`, `productList`, `totalPriceElement`, `submitButton`.  
-Обновление элементов происходит через сеттеры: 
-- `set products` — `productList`
-- `set totalPrice` — `totalPriceElement`
+Содержит следующие элементы разметки корзины: `container`, `cartButton`, `cartCounter`, `productList`, `totalPriceElement`, `submitButton`.
 
 #### Конструктор:
-`(container: HTMLElement)`  
-Добавляется обработчик события `submit` на нажатие `submitButton`, который вызывает событие `order:submit`.
+```
+(
+  protected readonly container: HTMLElement,
+  protected events: IEventEmitter
+)
+```  
+Добавляется обработчик события `click` на нажатие `submitButton`. Вызывает событие `form:order`.  
+Добавляется обработчик события `click` на нажатие `cartButton`. Вызывает событие `cart:open`.
+
+#### Сеттеры и геттеры:
+- `set valid(value: boolean)` — устанавливает значение аттрибута `disabled` у кнопки `submitButton`.
+- `set products(products: HTMLElement[])` — обновляет список товаров в `productList`.
+- `set totalPrice(price: number)` — обновляет текстовое содержимое элемента `totalPriceElement`.
+- `set cartCount(count: number)` — обновляет текстовое содержимое элемента `cartCounter`.
 
 
 ### 5.1 `Form<T>`
 Наследует `View`.  
 Основа для классов форм. Отвечает за отображение формы.  
-Содержит следующие элементы разметки формы: `container`, `errorElement`, `submitButton`.  
+Содержит следующие элементы разметки формы: `container`, `errorElement`, `submitButton`, `inputs`.  
+
+#### Конструктор:
+```
+(
+  protected readonly container: HTMLFormElement,
+  protected events: IEventEmitter
+)
+```
+Добавляется слушатель события `input` на поля ввода, хранящиеся в `inputs`.
 
 #### Сеттеры и геттеры:
-- `set valid(value: boolean)` — управляет состоянием аттрибута `disabled` у `submitButton` 
-- `set errors(data: string)` — отображает текст ошибок при неверно заполенной форме
+- `set valid(value: boolean)` — управляет состоянием аттрибута `disabled` у `submitButton`.
+- `set errors(data: string)` — отображает текст ошибок при неверно заполенной форме.
 
 #### Методы:
-- `inputChangeHandler(field: keyof T, value: string)` — обработчик события `input`. Вызывает событие типа `имя_формы.поле_ввода:change`
+- `inputChangeHandler(field: keyof T, value: string)` — обработчик события `input`. Вызывает событие типа `имя_формы.поле_ввода:change`.
+- `clear()` — очищает все поля ввода в `inputs`.
 
 
 ### 5.2 `FormOrder`
 Наследует `Form`. 
 
 Отвечает за отображение формы типа оплаты и адреса доставки.    
-Содержит следующие элементы разметки формы: `buttonCard`, `buttonCash`, `deliveryAddress`.
+Содержит следующие элементы разметки формы: `deliveryAddress`, `buttonsContainer`.
+
+#### Конструктор:
+`(container: HTMLFormElement, events: IEventEmitter)`
+Добавляет обработчик события `submit`. Вызывает событие `form:contacts`.  
+Устанавливает обработчик события `click` на `buttonsContainer` для управления представлением кнопок переключения типа оплаты и вызова метода `paymentTypeChangeHandler`.
 
 #### Сеттеры и геттеры:
 - `set deliveryAddressValue(value: string)` — устанавливает значение в поле ввода `deliveryAddress`.
+
+#### Методы:
+- `paymentTypeChangeHandler(type: PaymentMethods)` — вызывает событие `order:paymentMethod` и передает объект со свойством `type`.
 
 
 ### 5.3 `FormContacts`
@@ -233,6 +274,9 @@ https://github.com/bambiq9/web-larek-frontend.git
 
 Отвечает за отображение формы контактных данных.  
 Содержит следующие элементы разметки формы: `email`, `phone`.
+
+#### Конструктор:
+`(container: HTMLFormElement, events: IEventEmitter)`
 
 #### Сеттеры и геттеры:
 - `set emailValue(value: string)` — устанавливает значение в поле ввода `email`.
@@ -257,8 +301,29 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `render(data: IModalData): HTMLElement` — расширяет родительский метод `render`, добавляя функционал открытия модального окна.
 
 
+### 7. `SuccessView`
+Наследует `View`.
+
+Представление успешного оформления заказа.
+Содержит следующие элементы разметки: `container`, `priceElement`, `button`.
+
+#### Конструктор:
+```
+(
+  protected readonly container: HTMLElement,
+  protected events: IEventEmitter
+)
+```
+Добавляется обработчик события `click` на `button`. Вызывает событие `modal:close`.
+
+#### Сеттеры и геттеры:
+- `set price(value: number)` — устанавливает текстовое значение элемента `priceElement`.
+
+
 ## Presenter
-Презентер связывает между собой модель и представление, используя событийно-ориентированный подход.  
+Находится в основном скрипте приложения `index.ts`. Не выделяется в отдельный класс.
+Презентер связывает между собой модель и представление, используя событийно-ориентированный подход.
+
 
 ### Разделение ответственности
 Презентер не хранит и не отображает данные.  
@@ -277,21 +342,22 @@ events.on('событие', () => {
 Его методы `on`, `off` и `emit` позволяют установить, снять обработчики событий, а также вызвать само событие.
 
 ### Список событий:
-- `OrderCreate = 'order:submit'` — форма заказа успешно заполнена
-- `OrderSucess = 'order:success'` — получен успешный ответ на заказ с сервера
-- `OrderError = 'order:error'` — сервер вернул ошибку
-- `CartAdd = 'cart:add'` — добавлен товар в корзину
-- `CartRemove = 'cart:remove'` — товар удален из корзины
-- `CartPaymentMethod = 'cart:paymentMethod'` — изменен метод оплаты заказа
-- `ModalOpen = 'modal:open'` — открытие модального окна
-- `ModalClose = 'modal:close'` — закрытие модального окна
-- `FormValidation = 'form:validation'` — валидация формы
-- `ProductListGetSuccess = 'productList:get'` — успешно получен список товаров с API
-- `ProductListGetError = 'productList:error'` — запрос списка товаров вернул ошибку
-- `ProductListSet = 'productList:set'` — обновлен список товаров в модели
-- `ProductClick = 'product:click'` — нажатие на товар в списке
-- `ProductAdd = 'product:add'` — нажатие на кнопку "В корзину"
-- `ProductDelete = 'product:delete'` — нажатие на кнопку удаления товара в корзине
+- `OrderSubmit` = `order:submit` — все формы заполнены и данные готовы к отправке на сервер.
+- `OrderError` = `order:error` — ошибка валидации формы заказа.
+- `OrderPaymentMethod` = `order:paymentMethod` — изменен способ оплаты заказа.
+- `OrderValid` = `order:valid` — форма заказа корректно заполнена.
+- `ContactsError` = `contacts:error` — ошибка валидации формы контактов.
+- `ContactsValid` = `contacts:valid` — форма конактных данных корректно заполнена.
+- `CartOpen` = `cart:open` — открыта корзина.
+- `CartChanged` = `cart:changed` — изменения в составе корзины.
+- `FormOrder` = `form:order` — открыта форма заказа.
+- `FormContacts` = `form:contacts` — открыта форма контактных данных.
+- `ModalOpen` = `modal:open` — открыто модальное окно.
+- `ModalClose` = `modal:close` — закрыто модальное окно.
+- `ProductListSet` = `productList:set` — получены данные товаров с сервера.
+- `ProductClick` = `product:click` — нажатие на товар в списке.
+- `ProductAdd` = `product:add` — товар добавлен в корзину.
+- `ProductDelete` = `product:delete` — товар удален из корзины.
 
 ## Ключевые типы данных
 ```ts
@@ -309,12 +375,13 @@ type IProduct = {
 ```ts
 // Тип объекта для отправки на сервер, собираемый в презентере 
 // из данных форм и корзины.
-type OrderApiData = { 
-  email: string;
-  phone: string;
-  address: string;
-  payment: PaymentMethods;
-  items: string[];
+type OrderData = {
+	email: string;
+	phone: string;
+	address: string;
+	payment: PaymentMethods;
+	items: string[];
+	total: number;
 }
 ```
 

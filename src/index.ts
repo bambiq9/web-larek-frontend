@@ -1,1 +1,216 @@
+import { AppApi } from './components/api/AppApi';
+import { EventEmitter } from './components/base/events';
+import { CartModel } from './components/model/CartModel';
+import { OrderModel, OrderModelTypes } from './components/model/OrderModel';
+import { ProductListModel } from './components/model/ProductListModel';
+import { CartView } from './components/view/CartView';
+import { FormContacts } from './components/view/FormContacts';
+import { FormOrder } from './components/view/FormOrder';
+import { Modal } from './components/view/Modal';
+import { ProductListView } from './components/view/ProductListView';
+import {
+	ProductView,
+	ProductViewCart,
+	ProductViewPreview,
+} from './components/view/ProductView';
+import { SuccessView } from './components/view/SuccessView';
 import './scss/styles.scss';
+import { Events, IProduct, EventDataId, OrderData } from './types';
+import { PaymentMethods } from './types/model/FormModel';
+import { API_URL, CDN_URL } from './utils/constants';
+import { cloneTemplate, ensureElement } from './utils/utils';
+
+const events = new EventEmitter();
+const api = new AppApi(API_URL, CDN_URL);
+
+const productCardCatalogTemplate =
+	ensureElement<HTMLTemplateElement>('#card-catalog');
+const productCardPreviewTemplate =
+	ensureElement<HTMLTemplateElement>('#card-preview');
+const productCardCartTemplate =
+	ensureElement<HTMLTemplateElement>('#card-basket');
+const cartTemplate = ensureElement<HTMLTemplateElement>('#basket');
+
+// Model
+const productListModel = new ProductListModel(events);
+const cartModel = new CartModel(events);
+const orderModel = new OrderModel(events);
+
+// View
+const modal = new Modal(ensureElement('#modal-container'), events);
+const productList = new ProductListView(ensureElement('.gallery'));
+const cart = new CartView(cloneTemplate(cartTemplate), events);
+const formOrder = new FormOrder(cloneTemplate('#order'), events);
+const formContacts = new FormContacts(cloneTemplate('#contacts'), events);
+const success = new SuccessView(cloneTemplate('#success'), events);
+
+// Get products on startup and update model
+api
+	.getProducts()
+	.then((res) => {
+		productListModel.setProducts(res.items);
+	})
+	.catch((err) => console.error(err));
+
+// Update list of products view
+events.on(Events.ProductListSet, (items: IProduct[]) => {
+	const cards: HTMLElement[] = items.map((item) => {
+		const container = cloneTemplate(productCardCatalogTemplate);
+
+		const { title, price, category, image, id } = item;
+		const data = { title, price, category, image, id };
+
+		const buttonHandler = () => events.emit(Events.ProductClick, item);
+		const card = new ProductView(container, events, buttonHandler);
+
+		return card.render(data);
+	});
+
+	productList.products = cards;
+});
+
+// Close modal
+events.on(Events.ModalClose, () => {
+	modal.close();
+});
+
+// Open product modal
+events.on(Events.ProductClick, (item: IProduct) => {
+	const inCart = cartModel.getProducts().has(item.id);
+	const buttonHandler = () => {
+		if (!inCart) {
+			events.emit(Events.ProductAdd, item);
+		} else {
+			events.emit(Events.ProductDelete, item);
+		}
+		events.emit(Events.ModalClose);
+	};
+
+	const card = new ProductViewPreview(
+		cloneTemplate(productCardPreviewTemplate),
+		events,
+		buttonHandler
+	);
+
+	if (!item.price) card.buttonDisable = true;
+
+	inCart
+		? (card.buttonText = 'Удалить из корзины')
+		: (card.buttonText = 'В корзину');
+	modal.render({ content: card.render(item) });
+});
+
+// Open a cart
+events.on(Events.CartOpen, () => {
+	modal.render({ content: cart.render() });
+});
+
+// Render changes to the cart (add, remove)
+events.on(Events.CartChanged, () => {
+	const products = Array.from(cartModel.getProducts().values()).map(
+		(item, index) => {
+			const { title, price, id } = item;
+			const data = { title, price, id, index: index + 1 };
+			const card = new ProductViewCart(
+				cloneTemplate(productCardCartTemplate),
+				events,
+				() => events.emit(Events.ProductDelete, item)
+			);
+			return card.render(data);
+		}
+	);
+	cart.products = products;
+	const amountOfProducts = cartModel.getAmountOfProducts();
+	amountOfProducts > 0 ? (cart.valid = true) : (cart.valid = false);
+	cart.cartCount = amountOfProducts;
+	cart.totalPrice = cartModel.getTotalPrice();
+});
+
+// Add product to the cart model
+events.on(Events.ProductAdd, (data: IProduct) => {
+	cartModel.addProduct(data);
+});
+
+// Remove product from the cart model
+events.on(Events.ProductDelete, (item: IProduct) => {
+	cartModel.removeProduct(item.id);
+});
+
+// Open delivery and payment form
+events.on(Events.FormOrder, () => {
+	orderModel.clear();
+	formOrder.clear();
+	formContacts.clear();
+	modal.render({ content: formOrder.render({ valid: false, errors: [] }) });
+});
+
+// Open contacts form
+events.on(Events.FormContacts, () => {
+	modal.render({ content: formContacts.render({ valid: false, errors: [] }) });
+});
+
+// Form input field changed
+events.on(
+	/^order\.[\w-]+:change$/,
+	(data: { field: keyof OrderModelTypes; value: string }) => {
+		orderModel.setFieldOrder(data.field, data.value);
+	}
+);
+
+events.on(
+	/^contacts\.[\w-]+:change$/,
+	(data: { field: keyof OrderModelTypes; value: string }) => {
+		orderModel.setFieldContacts(data.field, data.value);
+	}
+);
+
+// Form valid
+events.on(Events.OrderValid, () => {
+	formOrder.valid = true;
+});
+
+events.on(Events.ContactsValid, () => {
+	formContacts.valid = true;
+});
+
+// Form invalid
+events.on(Events.OrderError, (data) => {
+	formOrder.valid = false;
+	let errors: string = '';
+	Object.values(data).forEach((error) => (errors += error));
+	formOrder.errors = errors;
+});
+
+events.on(Events.ContactsError, (data) => {
+	formContacts.valid = false;
+	let errors: string = '';
+	Object.values(data).forEach((error) => (errors += ` ${error}`));
+	formContacts.errors = errors;
+});
+
+// Payment method changed
+events.on(Events.OrderPaymentMethod, (data: { type: PaymentMethods }) => {
+	orderModel.payment = data.type;
+});
+
+// Submit order
+events.on(Events.OrderSubmit, () => {
+	const orderData: OrderData = {
+		payment: orderModel.payment,
+		address: orderModel.address,
+		email: orderModel.email,
+		phone: orderModel.phone,
+		items: Array.from(cartModel.getProducts().keys()),
+		total: cartModel.getTotalPrice(),
+	};
+
+	api
+		.order(orderData)
+		.then((res) => {
+			if (res.total) {
+				modal.render({ content: success.render({ price: res.total }) });
+			}
+			cartModel.clearCart();
+		})
+		.catch((err) => console.error(err));
+});
