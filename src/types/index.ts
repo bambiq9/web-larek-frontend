@@ -1,4 +1,4 @@
-import { PaymentMethods } from './model/FormModel';
+import { PaymentMethods } from "./view/FormOrder";
 
 type Categories =
 	| 'софт-скил'

@@ -1,6 +1,6 @@
 import { Events, IEventEmitter } from '../../types';
-import { PaymentMethods } from '../../types/model/FormModel';
 import { FormErrors, OrderModelTypes } from '../../types/model/OrderModel';
+import { PaymentMethods } from '../../types/view/FormOrder';
 
 export class OrderModel {
 	order: OrderModelTypes = {
