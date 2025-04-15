@@ -27,7 +27,8 @@ export type EventDataId = {
 export enum Events {
 	OrderSubmit = 'order:submit',
 	OrderError = 'order:error',
-	OrderPaymentMethod = 'order:paymentMethod',
+	OrderFormPaymentMethod = 'order:formPaymentMethod',
+	OrderModelPaymentMethod = 'order:modelPaymentMethod',
 	OrderValid = 'order:valid',
 	ContactsValid = 'contacts:valid',
 	ContactsError = 'contacts:error',

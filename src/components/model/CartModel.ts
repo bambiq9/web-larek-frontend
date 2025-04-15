@@ -37,6 +37,7 @@ export class CartModel {
 
 	clearCart(): void {
 		this.products.clear();
+		this.totalPrice = 0;
 		this.events.emit(Events.CartChanged);
 	}
 }

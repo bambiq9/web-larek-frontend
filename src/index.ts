@@ -140,14 +140,14 @@ events.on(Events.ProductDelete, (item: IProduct) => {
 // Open delivery and payment form
 events.on(Events.FormOrder, () => {
 	orderModel.clear();
-	formOrder.clear();
-	formContacts.clear();
-	modal.render({ content: formOrder.render({ valid: false, errors: [] }) });
+	const orderData = { paymentType: orderModel.payment, deliveryAddressValue: orderModel.address};
+	modal.render({ content: formOrder.render({ ...orderData, valid: false, errors: []} ) });
 });
 
 // Open contacts form
 events.on(Events.FormContacts, () => {
-	modal.render({ content: formContacts.render({ valid: false, errors: [] }) });
+	const contactsData = { emailValue: orderModel.email, phoneValue: orderModel.phone };
+	modal.render({ content: formContacts.render({ ...contactsData, valid: false, errors: [] }) });
 });
 
 // Form input field changed
@@ -189,10 +189,15 @@ events.on(Events.ContactsError, (data) => {
 	formContacts.errors = errors;
 });
 
-// Payment method changed
-events.on(Events.OrderPaymentMethod, (data: { type: PaymentMethods }) => {
+// Payment method changed in form
+events.on(Events.OrderFormPaymentMethod, (data: { type: PaymentMethods }) => {
 	orderModel.payment = data.type;
 });
+
+// Payment method changed in model
+events.on(Events.OrderModelPaymentMethod, (data: { type: PaymentMethods}) => {
+	formOrder.paymentType = data.type;
+})
 
 // Submit order
 events.on(Events.OrderSubmit, () => {

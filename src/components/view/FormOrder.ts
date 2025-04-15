@@ -10,11 +10,15 @@ function isPaymentType(str: string): str is PaymentMethods {
 export class FormOrder extends Form<IFormOrder> {
 	deliveryAddress: HTMLInputElement;
 	buttonsContainer: HTMLElement;
+	buttonCash: HTMLButtonElement;
+	buttonCard: HTMLButtonElement;
 
 	constructor(container: HTMLFormElement, events: IEventEmitter) {
 		super(container, events);
 
 		this.buttonsContainer = ensureElement('.order__buttons', this.container);
+		this.buttonCard = ensureElement('[name="card"]', this.container) as HTMLButtonElement;
+		this.buttonCash = ensureElement('[name="cash"]', this.container) as HTMLButtonElement;
 		this.deliveryAddress = ensureElement(
 			'.form__input',
 			this.container
@@ -25,21 +29,12 @@ export class FormOrder extends Form<IFormOrder> {
 			events.emit(Events.FormContacts);
 		});
 
-		this.paymentTypeChangeHandler(PaymentMethods.card);
-		this.buttonsContainer
-			.querySelector('[name="card"]')
-			.classList.add('button_alt-active');
-
 		this.buttonsContainer.addEventListener('click', (e) => {
 			const target = e.target as HTMLElement;
 			if (target.classList.contains('button_alt')) {
 				const button = target as HTMLButtonElement;
 				const type = isPaymentType(button.name) ? button.name : undefined;
-				this.paymentTypeChangeHandler(type);
-				this.buttonsContainer
-					.querySelectorAll('.button_alt')
-					.forEach((button) => button.classList.remove('button_alt-active'));
-				target.classList.add('button_alt-active');
+				this.events.emit(Events.OrderFormPaymentMethod, { type });
 			}
 		});
 	}
@@ -48,10 +43,14 @@ export class FormOrder extends Form<IFormOrder> {
 		this.deliveryAddress.value = value;
 	}
 
-	paymentTypeChangeHandler(type: PaymentMethods) {
-		if (type) {
-			this.events.emit(Events.OrderPaymentMethod, { type });
-		}
+	set paymentType(type: PaymentMethods) {
+		[this.buttonCard, this.buttonCash].forEach((button) => {
+			if (button.name === type) {
+				this.toggleClass(button, 'button_alt-active', true);
+			} else {
+				this.toggleClass(button, 'button_alt-active', false);
+			} 
+		});
 	}
 
 	inputChangeHandler(field: keyof IFormOrder, value: string) {

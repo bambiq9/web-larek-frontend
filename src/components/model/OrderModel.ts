@@ -18,6 +18,7 @@ export class OrderModel {
 
 	set payment(type: PaymentMethods) {
 		this.order.paymentType = type;
+		this.events.emit(Events.OrderModelPaymentMethod, { type: this.payment })
 	}
 
 	get payment(): PaymentMethods {
