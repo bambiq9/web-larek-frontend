@@ -37,6 +37,6 @@ export class CartView extends View<ICartView> {
 	}
 
 	set totalPrice(price: number) {
-		this.setText(this.totalPriceElement, price);
+		this.setText(this.totalPriceElement, `${price} синапсов`);
 	}	
 }

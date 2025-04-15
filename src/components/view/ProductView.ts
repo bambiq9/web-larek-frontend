@@ -6,8 +6,6 @@ import { View } from '../base/View';
 export class ProductView extends View<IProduct> {
 	protected titleElement: HTMLElement;
 	protected priceElement: HTMLElement;
-	protected categoryElement: HTMLElement;
-	protected imageElement: HTMLImageElement;
 
 	constructor(
 		protected readonly container: HTMLElement,
@@ -17,15 +15,7 @@ export class ProductView extends View<IProduct> {
 		super(container);
 
 		this.titleElement = ensureElement('.card__title', this.container);
-		this.priceElement = container.querySelector('.card__price');
-		this.categoryElement = container.querySelector('.card__category');
-		this.imageElement = container.querySelector(
-			'.card__image'
-		) as HTMLImageElement;
-
-		this.container.addEventListener('click', () => {
-			if (this.constructor === ProductView) handler();
-		});
+		this.priceElement = ensureElement('.card__price', this.container);
 	}
 
 	set title(text: string) {
@@ -34,7 +24,29 @@ export class ProductView extends View<IProduct> {
 
 	set price(value: number) {
 		if (!value) this.setText(this.priceElement, 'Бесценно');
-		else this.setText(this.priceElement, value);
+			else this.setText(this.priceElement, `${value} синапсов`);
+	}
+}
+
+export class ProductViewList extends ProductView {
+	protected categoryElement: HTMLElement;
+	protected imageElement: HTMLImageElement;
+
+	constructor(
+		protected readonly container: HTMLElement,
+		protected events: IEventEmitter,
+		protected handler: ClickHandler
+	) {
+		super(container, events, handler);
+
+		this.categoryElement = ensureElement('.card__category', this.container);
+		this.imageElement = ensureElement('.card__image', this.container) as HTMLImageElement;
+
+		this.container.addEventListener('click', handler);
+	}
+
+	set image(src: string) {
+		this.imageElement.src = src;
 	}
 
 	set category(value: string) {
@@ -43,13 +55,11 @@ export class ProductView extends View<IProduct> {
 			Category[value as keyof typeof Category]
 		);
 	}
-
-	set image(src: string) {
-		this.imageElement.src = src;
-	}
 }
 
 export class ProductViewPreview extends ProductView {
+	protected categoryElement: HTMLElement;
+	protected imageElement: HTMLImageElement;
 	protected description: HTMLElement;
 	protected button: HTMLButtonElement;
 
@@ -60,11 +70,14 @@ export class ProductViewPreview extends ProductView {
 	) {
 		super(container, events, handler);
 
+		this.categoryElement = ensureElement('.card__category', this.container);
+		this.imageElement = ensureElement('.card__image', this.container) as HTMLImageElement;
 		this.description = ensureElement('.card__text', this.container);
 		this.button = ensureElement(
 			'.card__button',
 			this.container
 		) as HTMLButtonElement;
+
 		this.button.addEventListener('click', handler);
 	}
 
@@ -74,6 +87,17 @@ export class ProductViewPreview extends ProductView {
 
 	set buttonDisable(value: boolean) {
 		this.setDisabled(this.button, value);
+	}
+
+	set image(src: string) {
+		this.imageElement.src = src;
+	}
+
+	set category(value: string) {
+		this.setText(this.categoryElement, value);
+		this.categoryElement.classList.add(
+			Category[value as keyof typeof Category]
+		);
 	}
 }
 

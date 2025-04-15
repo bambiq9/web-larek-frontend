@@ -20,6 +20,10 @@ export class Page extends View<IPage> {
 		});
   }
 
+  set products(products: HTMLElement[]) {
+		this.productList.replaceChildren(...products);
+	}
+
   set cartCount(count: number) {
     this.setText(this.cartButtonCounter, count);
   }

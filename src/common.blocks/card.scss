@@ -8,6 +8,7 @@
 	background-color: $primary;
 	color: white;
 	padding: $defaultPadding;
+	text-align: left;
 
 	&_full {
 		flex-direction: row;
@@ -56,6 +57,7 @@
 		flex-grow: 1;
 	}
 	&__category {
+		max-width: fit-content;
 		padding: 0.5rem 1.25rem;
 		border-radius: 2.5rem;
 		margin-bottom: 12px;

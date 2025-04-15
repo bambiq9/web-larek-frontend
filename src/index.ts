@@ -8,9 +8,8 @@ import { FormContacts } from './components/view/FormContacts';
 import { FormOrder } from './components/view/FormOrder';
 import { Modal } from './components/view/Modal';
 import { Page } from './components/view/Page';
-import { ProductListView } from './components/view/ProductListView';
 import {
-	ProductView,
+	ProductViewList,
 	ProductViewCart,
 	ProductViewPreview,
 } from './components/view/ProductView';
@@ -41,7 +40,6 @@ const orderModel = new OrderModel(events);
 // View
 const page = new Page(ensureElement(document.body), events);
 const modal = new Modal(ensureElement('#modal-container'), events);
-const productList = new ProductListView(ensureElement('.gallery'));
 const cart = new CartView(cloneTemplate(cartTemplate), events);
 const formOrder = new FormOrder(cloneTemplate('#order'), events);
 const formContacts = new FormContacts(cloneTemplate('#contacts'), events);
@@ -63,13 +61,13 @@ events.on(Events.ProductListSet, (items: IProduct[]) => {
 		const { title, price, category, image, id } = item;
 		const data = { title, price, category, image, id };
 
-		const buttonHandler = () => events.emit(Events.ProductClick, item);
-		const card = new ProductView(container, events, buttonHandler);
+		const clickHandler = () => events.emit(Events.ProductClick, item);
+		const card = new ProductViewList(container, events, clickHandler);
 
 		return card.render(data);
 	});
 
-	productList.products = cards;
+	page.products = cards;
 });
 
 // Close modal
