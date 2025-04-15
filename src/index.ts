@@ -7,6 +7,7 @@ import { CartView } from './components/view/CartView';
 import { FormContacts } from './components/view/FormContacts';
 import { FormOrder } from './components/view/FormOrder';
 import { Modal } from './components/view/Modal';
+import { Page } from './components/view/Page';
 import { ProductListView } from './components/view/ProductListView';
 import {
 	ProductView,
@@ -38,6 +39,7 @@ const cartModel = new CartModel(events);
 const orderModel = new OrderModel(events);
 
 // View
+const page = new Page(ensureElement(document.body), events);
 const modal = new Modal(ensureElement('#modal-container'), events);
 const productList = new ProductListView(ensureElement('.gallery'));
 const cart = new CartView(cloneTemplate(cartTemplate), events);
@@ -123,7 +125,7 @@ events.on(Events.CartChanged, () => {
 	cart.products = products;
 	const amountOfProducts = cartModel.getAmountOfProducts();
 	amountOfProducts > 0 ? (cart.valid = true) : (cart.valid = false);
-	cart.cartCount = amountOfProducts;
+	page.cartCount = amountOfProducts;
 	cart.totalPrice = cartModel.getTotalPrice();
 });
 
