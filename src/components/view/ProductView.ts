@@ -10,7 +10,7 @@ export class ProductView extends View<IProduct> {
 	constructor(
 		protected readonly container: HTMLElement,
 		protected events: IEventEmitter,
-		protected handler: ClickHandler
+		protected handler?: ClickHandler
 	) {
 		super(container);
 

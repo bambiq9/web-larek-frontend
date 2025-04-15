@@ -1,4 +1,6 @@
 export interface IFormContacts {
-	email: string;
-	phone: string;
+	email: HTMLInputElement;
+	phone: HTMLInputElement;
+	
+	inputChangeHandler(field: keyof IFormContacts, value: string): void;
 }

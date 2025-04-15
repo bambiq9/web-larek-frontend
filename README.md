@@ -99,7 +99,7 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `formErrors` — список ошибок в полученных от пользователя данных.
 
 #### Сеттеры и геттеры:
-- `set payment(type: PaymentMethods)` — устаналивает тип оплаты.
+- `set payment(type: PaymentMethods)` — устаналивает тип оплаты и вызывает событие `order:modelPaymentMethod`.
 - `get payment`, `address`, `email`, `phone`
 
 #### Методы:
@@ -126,37 +126,72 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `render(data?: Partial<T>)` — отвечает за отображение элемента. Обновляет поля текущего экземпляра класса. Возвращает `container(HTMLElement)`.
 
 
-### 2.1 `ProductView` 
+### 2 `Page`
 Наследует `View`.
+
+Представление страницы приложения.
+
+Содержит следующие элементы разметки: `productList`, `cartButton`, `cartButtonCounter`.
+
+#### Конструктор:
+`(protected readonly container: HTMLElement, protected events: IEventEmitter)`
+
+Добавляется обработчик события `click` на `cartButton`. Вызывает событие `cart:open`.
+
+#### Сеттеры и геттеры:
+- `set products(products: HTMLElement[])` — обновляет элементы товаров в контейнере `productList`.
+- `set cartCount(count: number)` — обновляет текстовое содержимое элемента `cartButtonCounter`.
+
+
+### 3.1 `ProductView` 
+Наследует `View`.
+
+Основа для классов карточки товара.
+
+Содержит следующие элементы разметки карточки товара: `container`, `titleElement`, `priceElement`.
+#### Конструктор:
+```
+(
+  protected readonly container: HTMLElement,
+  protected events: IEventEmitter,
+  protected handler?: ClickHandler
+)
+```
+- `handler` — обработчик событий. Необязательный параметр.
+
+#### Сеттеры и геттеры:
+- `set title(text: string)` — текст элемента `titleElement`.
+- `set price(value: number)` — текст `priceElement`.
+
+
+### 3.2 `ProductViewList`
+Наследует `ProductView`.
+
 Представление карточки товара в списке товаров.
 
-Содержит следующие элементы разметки карточки товара: `container`, `titleElement`, `priceElement`, `categoryElement`, `imageElement`.
+Содержит следующие элементы разметки карточки товара: унаследованные элементы от родителя, `categoryElement`, `imageElement`.
 
 #### Конструктор:
 ```
 (
   protected readonly container: HTMLElement,
   protected events: IEventEmitter,
-  protected handler: ClickHandler
+  protected handler?: ClickHandler
 )
 ```
 - `handler` — обработчик события `click` на `container`.
 
-Добавляется слушатель события `click` на `container`.
-
 #### Сеттеры и геттеры:
-- `set title(text: string)` — текст элемента `titleElement`.
-- `set price(value: number)` — текст `priceElement`.
 - `set category(value: string)` — текст `categoryElement`. 
 - `set image(src: string)` — значение атрибута `src` элемента `imageElement`.
 
 
-### 2.2 `ProductViewPreview`
+### 3.3 `ProductViewPreview`
 Наследует `ProductView`.
 
 Представление карточки товара в модальном окне.
 
-Содержит следующие элементы разметки карточки товара: унаследованные элементы от родителя, `description`, `button`.
+Содержит следующие элементы разметки карточки товара: унаследованные элементы от родителя, `categoryElement`, `imageElement`, `description`, `button`.
 
 #### Конструктор:
 ```
@@ -171,9 +206,11 @@ https://github.com/bambiq9/web-larek-frontend.git
 #### Сеттеры и геттеры:
 - `set buttonText(text: string)` — установка текста кнопки `button`.
 - `set buttonDisable(value: boolean)` — установка значения аттрибута `disavbled` у кнопки `button`.
+- `set category(value: string)` — текст `categoryElement`. 
+- `set image(src: string)` — значение атрибута `src` элемента `imageElement`.
 
 
-### 2.3 `ProductViewCart`
+### 3.4 `ProductViewCart`
 Наследует `ProductView`.
 
 Представление карточки товара в корзине.
@@ -194,22 +231,12 @@ https://github.com/bambiq9/web-larek-frontend.git
 - `set index(index: number)` — установка индекса карточки для отображения в списке товаров корзины.
 
 
-### 3. `ProductListView`
-Наследует `View`.
-
-Представление списка товаров магазина.  
-Обновление списка происходит через сеттер `set products(products: HTMLElement[])`.
-
-#### Конструктор:
-`(container: HTMLElement)`
-
-
 ### 4. `CartView`
 Наследует `View`. 
 
 Отображение корзины.
 
-Содержит следующие элементы разметки корзины: `container`, `cartButton`, `cartCounter`, `productList`, `totalPriceElement`, `submitButton`.
+Содержит следующие элементы разметки корзины: `container`, `productList`, `totalPriceElement`, `submitButton`.
 
 #### Конструктор:
 ```
@@ -219,13 +246,11 @@ https://github.com/bambiq9/web-larek-frontend.git
 )
 ```  
 Добавляется обработчик события `click` на нажатие `submitButton`. Вызывает событие `form:order`.  
-Добавляется обработчик события `click` на нажатие `cartButton`. Вызывает событие `cart:open`.
 
 #### Сеттеры и геттеры:
 - `set valid(value: boolean)` — устанавливает значение аттрибута `disabled` у кнопки `submitButton`.
 - `set products(products: HTMLElement[])` — обновляет список товаров в `productList`.
 - `set totalPrice(price: number)` — обновляет текстовое содержимое элемента `totalPriceElement`.
-- `set cartCount(count: number)` — обновляет текстовое содержимое элемента `cartCounter`.
 
 
 ### 5.1 `Form<T>`
@@ -260,13 +285,11 @@ https://github.com/bambiq9/web-larek-frontend.git
 #### Конструктор:
 `(container: HTMLFormElement, events: IEventEmitter)`
 Добавляет обработчик события `submit`. Вызывает событие `form:contacts`.  
-Устанавливает обработчик события `click` на `buttonsContainer` для управления представлением кнопок переключения типа оплаты и вызова метода `paymentTypeChangeHandler`.
+Устанавливает обработчик события `click` на `buttonsContainer`. Определяет выбранный тип оплаты и вызывает событие `order:formPaymentMethod`.
 
 #### Сеттеры и геттеры:
 - `set deliveryAddressValue(value: string)` — устанавливает значение в поле ввода `deliveryAddress`.
-
-#### Методы:
-- `paymentTypeChangeHandler(type: PaymentMethods)` — вызывает событие `order:paymentMethod` и передает объект со свойством `type`.
+- `set paymentType(type: PaymentMethods)` — устанавливает активную кнопку выбора типа оплаты.
 
 
 ### 5.3 `FormContacts`
@@ -344,7 +367,8 @@ events.on('событие', () => {
 ### Список событий:
 - `OrderSubmit` = `order:submit` — все формы заполнены и данные готовы к отправке на сервер.
 - `OrderError` = `order:error` — ошибка валидации формы заказа.
-- `OrderPaymentMethod` = `order:paymentMethod` — изменен способ оплаты заказа.
+- `OrderFormPaymentMethod` = `order:formPaymentMethod` — нажатие на кнопку выбора типа оплаты в форме.
+- `OrderModelPaymentMethod` = `order:modelPaymentMethod` — изменение типа оплаты в модели.
 - `OrderValid` = `order:valid` — форма заказа корректно заполнена.
 - `ContactsError` = `contacts:error` — ошибка валидации формы контактов.
 - `ContactsValid` = `contacts:valid` — форма конактных данных корректно заполнена.

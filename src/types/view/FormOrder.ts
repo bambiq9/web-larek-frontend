@@ -9,6 +9,10 @@ export enum PaymentMethods {
 }
 
 export interface IFormOrder {
-	paymentType: string;
-	deliveryAddress: string;
+	deliveryAddress: HTMLElement;
+	buttonsContainer: HTMLElement;
+	buttonCash: HTMLButtonElement;
+	buttonCard: HTMLButtonElement;
+
+	inputChangeHandler(field: keyof IFormOrder, value: string): void;
 }
